@@ -2,9 +2,10 @@ import telebot
 import os
 import random
 
+# Токен берется из переменной окружения
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-bot = telebot.TeleBot(BOT_TOKEN)
 
+bot = telebot.TeleBot(BOT_TOKEN)
 debtors = {}
 
 def add_debtor(username):
@@ -14,28 +15,8 @@ def add_debtor(username):
         return debt
     return None
 
-@bot.message_handler(commands=['инициализация'])
-def init_debtors(message):
-    """Записывает всех админов как должников"""
-    if message.chat.type not in ['group', 'supergroup']:
-        bot.reply_to(message, "Эта команда работает только в группах.")
-        return
-
-    admins = bot.get_chat_administrators(message.chat.id)
-    added = []
-    for admin in admins:
-        username = admin.user.username or admin.user.first_name
-        debt = add_debtor(username)
-        if debt:
-            added.append(f"@{username} теперь должен {debt:,}₽")
-
-    if added:
-        bot.send_message(message.chat.id, "\n".join(added))
-    else:
-        bot.send_message(message.chat.id, "Все уже были в списке должников.")
-
 @bot.message_handler(content_types=['new_chat_members'])
-def handle_new_members(message):
+def handle_new_member(message):
     for user in message.new_chat_members:
         username = user.username or user.first_name
         debt = add_debtor(username)
@@ -63,5 +44,17 @@ def remove_debtor(message):
             bot.send_message(message.chat.id, f"@{username} не найден.")
     except IndexError:
         bot.send_message(message.chat.id, "Напиши так: /удалить @username")
+
+@bot.message_handler(commands=['добавить'])
+def add_debtor_command(message):
+    try:
+        username = message.text.split()[1].lstrip('@')
+        if username in debtors:
+            bot.send_message(message.chat.id, f"@{username} уже в списке должников.")
+        else:
+            debt = add_debtor(username)
+            bot.send_message(message.chat.id, f"@{username} теперь должен {debt:,}₽!")
+    except IndexError:
+        bot.send_message(message.chat.id, "Напиши так: /добавить @username")
 
 bot.polling()
