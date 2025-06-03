@@ -74,3 +74,16 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.send_message(message.chat.id, "Привет, я А4! Добавь меня в свою группу! Я тут крайне бесполезен.")
+@bot.message_handler(commands=['help'])
+def show_help(message):
+    help_text = (
+        "📋 Список команд:\n"
+        "/start — Приветственное сообщение\n"
+        "/добавить @username — Добавить пользователя в должники\n"
+        "/удалить @username — Удалить пользователя из списка\n"
+        "/список — Показать список должников"
+    )
+    bot.send_message(message.chat.id, help_text)
