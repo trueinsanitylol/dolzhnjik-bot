@@ -2,19 +2,44 @@ import telebot
 import os
 import random
 
-
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
 bot = telebot.TeleBot(BOT_TOKEN)
+
 debtors = {}
 
+def add_debtor(username):
+    if username not in debtors:
+        debt = random.randint(1000, 10_000_000)
+        debtors[username] = debt
+        return debt
+    return None
+
+@bot.message_handler(commands=['инициализация'])
+def init_debtors(message):
+    """Записывает всех админов как должников"""
+    if message.chat.type not in ['group', 'supergroup']:
+        bot.reply_to(message, "Эта команда работает только в группах.")
+        return
+
+    admins = bot.get_chat_administrators(message.chat.id)
+    added = []
+    for admin in admins:
+        username = admin.user.username or admin.user.first_name
+        debt = add_debtor(username)
+        if debt:
+            added.append(f"@{username} теперь должен {debt:,}₽")
+
+    if added:
+        bot.send_message(message.chat.id, "\n".join(added))
+    else:
+        bot.send_message(message.chat.id, "Все уже были в списке должников.")
+
 @bot.message_handler(content_types=['new_chat_members'])
-def handle_new_member(message):
+def handle_new_members(message):
     for user in message.new_chat_members:
         username = user.username or user.first_name
-        if username not in debtors:
-            debt = random.randint(1000, 10_000_000)
-            debtors[username] = debt
+        debt = add_debtor(username)
+        if debt:
             bot.send_message(message.chat.id, f"@{username} теперь должен {debt:,}₽!")
 
 @bot.message_handler(commands=['список'])
