@@ -1,11 +1,12 @@
 import telebot
 import os
 import random
+from flask import Flask, request
 
-# Токен берется из переменной окружения
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("BOT_TOKEN")
+bot = telebot.TeleBot(TOKEN)
+app = Flask(__name__)
 
-bot = telebot.TeleBot(BOT_TOKEN)
 debtors = {}
 
 def add_debtor(username):
@@ -57,4 +58,21 @@ def add_debtor_command(message):
     except IndexError:
         bot.send_message(message.chat.id, "Напиши так: /добавить @username")
 
-bot.polling()
+# Flask-хендлер для Telegram Webhook
+@app.route(f"/{TOKEN}", methods=["POST"])
+def webhook():
+    json_str = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return "ok", 200
+
+# Устанавливаем webhook при запуске
+@app.route("/", methods=["GET"])
+def index():
+    bot.remove_webhook()
+    webhook_url = os.getenv("RENDER_EXTERNAL_URL") + "/" + TOKEN
+    bot.set_webhook(url=webhook_url)
+    return "Бот запущен!", 200
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
