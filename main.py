@@ -84,12 +84,9 @@ def show_help(message):
         "/start — Приветственное сообщение\n"
         "/добавить @username — Добавить пользователя в должники\n"
         "/удалить @username — Удалить пользователя из списка\n"
-        "/список — Показать список должников"
-    )
-    bot.send_message(message.chat.id, help_text)
-
-@bot.inline_handler(func=lambda query: True)
-def handle_inline_query(inline_query):
+        "/список — Показать список должников 
+@bot.message_handler(commands=['dolg'])
+def random_debt(message):
     amount = random.randint(1_000_000, 10_000_000)
     comments = [
         "крупный должник",
@@ -100,54 +97,5 @@ def handle_inline_query(inline_query):
         "больше, чем ипотека"
     ]
     comment = random.choice(comments)
-    text = f"я должен Владу А4 — {amount:,}₽\n{comment}"
-
-    result = telebot.types.InlineQueryResultArticle(
-        id='1',
-        title="Узнать свой долг",
-        description=text,
-        input_message_content=telebot.types.InputTextMessageContent(message_text=text)
-    )
-
-    bot.answer_inline_query(inline_query.id, [result])
-
-from ayugram.types import InlineQueryResultArticle, InputTextMessageContent
-
-@dp.inline_handler()
-async def inline_query_handler(inline_query: types.InlineQuery):
-    results = [
-        InlineQueryResultArticle(
-            id='1',
-            title='Посмотреть должников',
-            input_message_content=InputTextMessageContent(message_text='/список'),
-            description='Список всех должников'
-        )
-    ]
-    await inline_query.answer(results, cache_time=1)
-
-from ayugram import InlineQuery, InlineQueryResultArticle, InputTextMessageContent
-from uuid import uuid4
-
-@router.inline_query()
-
-from ayugram import Ayugram, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
-from uuid import uuid4
-
-bot = Ayugram("7493906963:AAG9Q1PnNe22NIkQAGF1SH05F2p5NhCsYqc")  # Заменишь на свой токен
-
-@bot.inline_query()
-async def handle_inline_query(query: InlineQuery):
-    results = [
-        InlineQueryResultArticle(
-            id=str(uuid4()),
-            title="📋 Узнать свой долг",
-            input_message_content=InputTextMessageContent(
-                message_text="Я должен Владу А4 — 5 000 000 ₽ 💸\nБольшой должник!"
-            ),
-            description="Нажми, чтобы узнать свой долг"
-        )
-    ]
-    await query.answer(results, cache_time=1)
-
-if __name__ == "__main__":
-    bot.run_polling()
+    bot.send_message(message.chat.id, f"я должен Владу А4 — {amount:,}₽\n{comment}")
+    
