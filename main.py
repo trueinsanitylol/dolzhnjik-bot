@@ -129,13 +129,25 @@ from ayugram import InlineQuery, InlineQueryResultArticle, InputTextMessageConte
 from uuid import uuid4
 
 @router.inline_query()
+
+from ayugram import Ayugram, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
+from uuid import uuid4
+
+bot = Ayugram("7493906963:AAG9Q1PnNe22NIkQAGF1SH05F2p5NhCsYqc")  # Заменишь на свой токен
+
+@bot.inline_query()
 async def handle_inline_query(query: InlineQuery):
     results = [
         InlineQueryResultArticle(
             id=str(uuid4()),
             title="📋 Узнать свой долг",
-            input_message_content=InputTextMessageContent(message_text="Я должен Владу А4 — 5 000 000 ₽ 💸"),
-            description="Нажми, чтобы узнать свой долг!"
+            input_message_content=InputTextMessageContent(
+                message_text="Я должен Владу А4 — 5 000 000 ₽ 💸\nБольшой должник!"
+            ),
+            description="Нажми, чтобы узнать свой долг"
         )
     ]
     await query.answer(results, cache_time=1)
+
+if __name__ == "__main__":
+    bot.run_polling()
