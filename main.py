@@ -87,3 +87,26 @@ def show_help(message):
         "/список — Показать список должников"
     )
     bot.send_message(message.chat.id, help_text)
+
+@bot.inline_handler(func=lambda query: True)
+def handle_inline_query(inline_query):
+    amount = random.randint(1_000_000, 10_000_000)
+    comments = [
+        "крупный должник",
+        "сильно в минусе",
+        "всё, прощай квартира",
+        "продал душу Владу А4",
+        "он в минус, как твой баланс",
+        "больше, чем ипотека"
+    ]
+    comment = random.choice(comments)
+    text = f"я должен Владу А4 — {amount:,}₽\n{comment}"
+
+    result = telebot.types.InlineQueryResultArticle(
+        id='1',
+        title="Узнать свой долг",
+        description=text,
+        input_message_content=telebot.types.InputTextMessageContent(message_text=text)
+    )
+
+    bot.answer_inline_query(inline_query.id, [result])
