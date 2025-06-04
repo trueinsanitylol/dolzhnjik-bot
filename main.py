@@ -125,4 +125,17 @@ async def inline_query_handler(inline_query: types.InlineQuery):
     ]
     await inline_query.answer(results, cache_time=1)
 
-@router.inline_query(inline handler) 
+from ayugram import InlineQuery, InlineQueryResultArticle, InputTextMessageContent
+from uuid import uuid4
+
+@router.inline_query()
+async def handle_inline_query(query: InlineQuery):
+    results = [
+        InlineQueryResultArticle(
+            id=str(uuid4()),
+            title="📋 Узнать свой долг",
+            input_message_content=InputTextMessageContent(message_text="Я должен Владу А4 — 5 000 000 ₽ 💸"),
+            description="Нажми, чтобы узнать свой долг!"
+        )
+    ]
+    await query.answer(results, cache_time=1)
