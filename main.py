@@ -124,3 +124,5 @@ async def inline_query_handler(inline_query: types.InlineQuery):
         )
     ]
     await inline_query.answer(results, cache_time=1)
+
+@router.inline_query(inline handler) 
