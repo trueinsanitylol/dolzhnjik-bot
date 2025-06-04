@@ -110,3 +110,17 @@ def handle_inline_query(inline_query):
     )
 
     bot.answer_inline_query(inline_query.id, [result])
+
+from ayugram.types import InlineQueryResultArticle, InputTextMessageContent
+
+@dp.inline_handler()
+async def inline_query_handler(inline_query: types.InlineQuery):
+    results = [
+        InlineQueryResultArticle(
+            id='1',
+            title='Посмотреть должников',
+            input_message_content=InputTextMessageContent(message_text='/список'),
+            description='Список всех должников'
+        )
+    ]
+    await inline_query.answer(results, cache_time=1)
